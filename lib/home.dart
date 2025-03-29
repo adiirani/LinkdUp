@@ -1,79 +1,86 @@
 import 'package:flutter/material.dart';
-import '../theme/themeprov.dart';
+import 'package:rizzlr/pages/homePage.dart';
+import 'package:rizzlr/pages/profile.dart';
+import 'components/neumorphicboxthin.dart';
 import 'package:provider/provider.dart';
 
-class HomePage extends StatelessWidget {
+class Home extends StatefulWidget {
+  const Home({super.key});
+
+  @override
+  State<Home> createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> {
+  final List _pages = [
+    HomePage(),
+    Profile()
+  ];
+
+  int _selectedIndex = 0; // Track the selected index
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index; // Update the selected index
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      body: Column(
         children: [
-          Center(child: Text('Main Content Here')),
-          FloatingSidebar(),
+          // Main content area
+          Expanded(
+            child: Center(
+              child: _pages[_selectedIndex],
+            ),
+          ),
         ],
       ),
-    );
-  }
-}
-
-class FloatingSidebar extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Positioned(
-      bottom: 20,
-      left: 20,
-      right: 20,
-      child: NeuThinBox(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            IconButton(
-              icon: Icon(Icons.home),
-              onPressed: () {},
-            ),
-            IconButton(
-              icon: Icon(Icons.search),
-              onPressed: () {},
-            ),
-            IconButton(
-              icon: Icon(Icons.settings),
-              onPressed: () {},
-            ),
-          ],
+      bottomNavigationBar: NeuThinBox(
+        child: SizedBox(
+          height: 70.0, // Set the height of the bottom navigation bar here
+          child: BottomNavigationBar(
+            items: [
+              BottomNavigationBarItem(
+                icon: Transform.scale(
+                  scale: 1.1, // Scale icon by 1.1
+                  child: const Icon(Icons.home),
+                ),
+                label: 'Home',
+              ),
+              BottomNavigationBarItem(
+                icon: Transform.scale(
+                  scale: 1.1, // Scale icon by 1.1
+                  child: const Icon(Icons.people),
+                ),
+                label: 'Leaderboard',
+              ),
+              BottomNavigationBarItem(
+                icon: Transform.scale(
+                  scale: 1.1, // Scale icon by 1.1
+                  child: const Icon(Icons.person),
+                ),
+                label: 'Music',
+              ),
+              BottomNavigationBarItem(
+                icon: Transform.scale(
+                  scale: 1.1, // Scale icon by 1.1
+                  child: const Icon(Icons.settings),
+                ),
+                label: 'Settings',
+              ),
+            ],
+            currentIndex: _selectedIndex, // Set the current index
+            onTap: _onItemTapped, // Handle item tap
+            type: BottomNavigationBarType.fixed, // Ensure it is fixed type
+            selectedFontSize: 14 * 1.1, // Scale text size by 1.1
+            unselectedFontSize: 12 * 1.1, // Scale unselected text size by 1.1
+          ),
         ),
       ),
-    );
-  }
-}
-
-class NeuThinBox extends StatelessWidget {
-  final Widget child;
-
-  const NeuThinBox({super.key, required this.child});
-
-  @override
-  Widget build(BuildContext context) {
-    bool isDark = Provider.of<Themeprov>(context, listen: false).isDark;
-
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        boxShadow: [
-          BoxShadow(
-            color: isDark ? Colors.black : Colors.grey.shade500,
-            blurRadius: 15,
-            offset: const Offset(4, 4),
-          ),
-          BoxShadow(
-            color: isDark ? Colors.grey.shade800 : Colors.white,
-            blurRadius: 15,
-            offset: const Offset(-4, -4),
-          ),
-        ],
-        borderRadius: BorderRadius.circular(16),
-      ),
-      padding: const EdgeInsets.all(6),
-      child: child,
     );
   }
 }
