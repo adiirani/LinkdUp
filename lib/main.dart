@@ -32,8 +32,11 @@ class MyApp extends StatelessWidget {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
           theme: Provider.of<Themeprov>(context).themeData,
-          home: loginProvider.isAuthenticated ? Home() : const LoginScreen(),
-        );
+          home: !loginProvider.hasSeenAuthScreen
+              ? LoginScreen(onFirstVisit: () {
+            loginProvider.markAuthScreenSeen();
+          })
+              : (loginProvider.isAuthenticated ? Home() : const LoginScreen()),        );
       },
     );
   }

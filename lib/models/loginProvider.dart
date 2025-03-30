@@ -3,8 +3,34 @@ import 'package:hive/hive.dart';
 
 class LoginProvider extends ChangeNotifier {
   bool _isAuthenticated = false;
+  bool _hasSeenAuthScreen = false;
+  bool get hasAuthenticated => _isAuthenticated;
 
   bool get isAuthenticated => _isAuthenticated;
+  bool get hasSeenAuthScreen => _hasSeenAuthScreen;
+
+
+  // Load authentication status (e.g., after app restart)
+  Future<void> loadAuthStatus() async {
+    var box = await Hive.openBox('authBox');
+    _isAuthenticated = box.get('isAuthenticated', defaultValue: false);
+    _hasSeenAuthScreen = box.get('hasSeenAuthScreen', defaultValue: false);
+    notifyListeners();
+  }
+
+  Future<void> setAuthenticated(bool value) async {
+    _isAuthenticated = value;
+    var box = await Hive.openBox('authBox');
+    await box.put('isAuthenticated', value);
+    notifyListeners();
+  }
+
+  Future<void> markAuthScreenSeen() async {
+    _hasSeenAuthScreen = true;
+    var box = await Hive.openBox('authBox');
+    await box.put('hasSeenAuthScreen', true);
+    notifyListeners();
+  }
 
   // Login method to authenticate a user
   Future<void> login(String email, String password) async {
@@ -37,13 +63,6 @@ class LoginProvider extends ChangeNotifier {
     _isAuthenticated = false;
     var box = await Hive.openBox('authBox');
     box.put('isAuthenticated', false);
-    notifyListeners();
-  }
-
-  // Load authentication status (e.g., after app restart)
-  Future<void> loadAuthStatus() async {
-    var box = await Hive.openBox('authBox');
-    _isAuthenticated = box.get('isAuthenticated', defaultValue: false);
     notifyListeners();
   }
 }
