@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'package:provider/provider.dart';
+import 'package:rizzlr/components/gradientBox.dart';
 import 'package:rizzlr/models/profileProvider.dart';
+import 'package:rizzlr/models/loginProvider.dart';
+import 'package:rizzlr/pages/loginScreen.dart';
+import 'package:reorderables/reorderables.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
@@ -11,51 +16,49 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  bool _isLoading = true;
   late ProfileProvider _profileProvider;
   final ImagePicker _picker = ImagePicker();
 
-  // Controllers for name and bio input fields
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _bioController = TextEditingController();
-
-  // Path to the profile image (local or remote)
   String _imagePath = '';
 
   @override
   void initState() {
     super.initState();
-    _loadProfile(); // Load profile data when screen initializes
+    _loadProfile();
   }
 
-  // Loads profile data and populates controllers
   Future<void> _loadProfile() async {
     _profileProvider = await ProfileProvider.loadProfile();
     _nameController.text = _profileProvider.name;
     _bioController.text = _profileProvider.bio;
     setState(() {
-      _imagePath = _profileProvider.id; // Using `id` as placeholder image path
+      _imagePath = _profileProvider.profileImage;
+      _isLoading = false;
     });
   }
 
-  // Opens the image picker and sets selected image
   Future<void> _pickImage() async {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
-      setState(() => _imagePath = pickedFile.path); // Use local file path
-      _profileProvider.saveProfile(); // Save profile (e.g., with new image path)
+      setState(() {
+        _imagePath = pickedFile.path;
+        _profileProvider.updateProfile(newProfileImage: _imagePath);
+      });
     }
   }
 
-  // Builds the circular profile image widget
   Widget _buildProfileImage() {
     return GestureDetector(
-      onTap: _pickImage, // Pick new image on tap
+      onTap: _pickImage,
       child: CircleAvatar(
         radius: 60,
         backgroundColor: Colors.grey.shade300,
         backgroundImage: _imagePath.isEmpty
-            ? const AssetImage('assets/default_profile.jpg') // Default image
-            : FileImage(File(_imagePath)), // Local image file
+            ? const AssetImage('assets/default_profile.jpg')
+            : FileImage(File(_imagePath)) as ImageProvider,
         child: _imagePath.isEmpty
             ? const Icon(Icons.camera_alt, size: 40, color: Colors.white)
             : null,
@@ -63,7 +66,6 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  // Reusable function for building labeled text fields
   Widget _buildTextField(String label, TextEditingController controller, Function(String) onChanged, {int maxLines = 1}) {
     return TextField(
       controller: controller,
@@ -76,7 +78,148 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  // Shows the list of linked social accounts with delete buttons
+  Widget _buildPhotoGallery() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Photo Gallery', style: Theme.of(context).textTheme.titleMedium),
+        const SizedBox(height: 10),
+        ReorderableWrap(
+          spacing: 12,
+          runSpacing: 12,
+          onReorder: (oldIndex, newIndex) {
+            setState(() {
+              _profileProvider.reorderPhotos(oldIndex, newIndex);
+            });
+          },
+          children: List.generate(_profileProvider.uploadedPhotos.length, (index) {
+            final path = _profileProvider.uploadedPhotos[index];
+            final caption = _profileProvider.photoCaptions[path] ?? '';
+
+            return GestureDetector(
+              key: ValueKey(path),
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (_) => Dialog(
+                    backgroundColor: Colors.transparent,
+                    child: Stack(
+                      children: [
+                        Image.file(File(path), fit: BoxFit.contain),
+                        Positioned(
+                          bottom: 16,
+                          left: 16,
+                          right: 16,
+                          child: Text(
+                            caption,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              shadows: [Shadow(blurRadius: 10, color: Colors.black)],
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+              child: Stack(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: Image.file(
+                      File(path),
+                      height: 140, // Bigger gallery image
+                      width: 140,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  Positioned(
+                    top: 4,
+                    right: 4,
+                    child: GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _profileProvider.removePhoto(index);
+                        });
+                      },
+                      child: Container(
+                        decoration: const BoxDecoration(
+                          color: Colors.black54,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.close, size: 20, color: Colors.white),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    bottom: 4,
+                    left: 4,
+                    child: GestureDetector(
+                      onTap: () async {
+                        final captionController = TextEditingController(text: caption);
+                        await showDialog(
+                          context: context,
+                          builder: (_) => AlertDialog(
+                            title: const Text("Edit Caption"),
+                            content: TextField(
+                              controller: captionController,
+                              decoration: const InputDecoration(hintText: "Enter caption"),
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: const Text("Cancel"),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  setState(() {
+                                    _profileProvider.updateCaption(path, captionController.text);
+                                  });
+                                  Navigator.pop(context);
+                                },
+                                child: const Text("Save"),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                      child: const Icon(Icons.edit, size: 20, color: Colors.white),
+                    ),
+                  )
+                ],
+              ),
+            );
+          }),
+        ),
+        const SizedBox(height: 16),
+        GestureDetector(
+          onTap: () async {
+            final picked = await _picker.pickImage(source: ImageSource.gallery);
+            if (picked != null) {
+              setState(() {
+                _profileProvider.addPhoto(picked.path);
+              });
+            }
+          },
+          child: const GradientBox(
+          child: Center(
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: 14.0),
+                child: Text(
+                  "Add Photo",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildSocialList() {
     return ExpansionTile(
       title: const Text('Linked Socials'),
@@ -97,7 +240,6 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  // Displays a dialog to add a new linked social account
   void _showAddSocialDialog() {
     final platformController = TextEditingController();
     final usernameController = TextEditingController();
@@ -129,7 +271,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       usernameController.text,
                     );
                   });
-                  Navigator.pop(context); // Close dialog
+                  Navigator.pop(context);
                 }
               },
               child: const Text('Add'),
@@ -142,7 +284,6 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   void dispose() {
-    // Always dispose controllers to avoid memory leaks
     _nameController.dispose();
     _bioController.dispose();
     super.dispose();
@@ -150,6 +291,12 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(title: const Text('Edit Profile')),
       body: Padding(
@@ -157,7 +304,7 @@ class _ProfilePageState extends State<ProfilePage> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              _buildProfileImage(), // Profile image section
+              _buildProfileImage(),
               const SizedBox(height: 20),
               _buildTextField('Name', _nameController, (name) {
                 _profileProvider.updateProfile(newName: name);
@@ -167,12 +314,24 @@ class _ProfilePageState extends State<ProfilePage> {
                 _profileProvider.updateProfile(newBio: bio);
               }, maxLines: 3),
               const SizedBox(height: 20),
-              _buildSocialList(), // List of linked socials
+              _buildPhotoGallery(),
+              _buildSocialList(),
               const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _showAddSocialDialog,
-                child: const Text('Add Linked Social'),
+              GestureDetector(
+                onTap: _showAddSocialDialog,
+                child: const GradientBox(
+                  child: Center(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: 14.0),
+                      child: Text(
+                        "Add Linked Social",
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      ),
+                    ),
+                  ),
+                ),
               ),
+              const SizedBox(height: 20),
             ],
           ),
         ),
