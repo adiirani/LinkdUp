@@ -5,7 +5,7 @@ class Bounty extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Boilerplate Page'),
+        title: Text('LB'),
         centerTitle: true,
       ),
       body: Center(

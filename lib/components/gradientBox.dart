@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import '../theme/themeprov.dart';
 import 'package:provider/provider.dart';
 
-class NeuThinBoxWithGradient extends StatelessWidget {
+class GradientBox extends StatelessWidget {
   final Widget child; // Accept child in the constructor
 
-  const NeuThinBoxWithGradient({super.key, required this.child}); // Constructor
+  const GradientBox({super.key, required this.child}); // Constructor
 
   @override
   Widget build(BuildContext context) {
