@@ -16,13 +16,17 @@ class ProfileProvider extends ChangeNotifier {
   String bio;
 
   @HiveField(3)
-  Map<String, String> linkedSocials; // e.g., {"twitter": "@user", "github": "user123"}
+  String profileImage;
 
   @HiveField(4)
+  Map<String, String> linkedSocials; // e.g., {"twitter": "@user", "github": "user123"}
+
+  @HiveField(5)
   List<String> friends; // List of friend IDs
 
   ProfileProvider({
     required this.id,
+    required this.profileImage,
     required this.name,
     required this.bio,
     required this.linkedSocials,
@@ -35,27 +39,32 @@ class ProfileProvider extends ChangeNotifier {
     if (box.isNotEmpty) {
       return box.get('profile')!;
     } else {
-      return ProfileProvider(
+      // Default profile if none exists
+      var newProfile = ProfileProvider(
         id: const Uuid().v4(), // Generate a unique ID
         name: 'New User',
         bio: 'This is my bio',
         linkedSocials: {},
         friends: [],
+        profileImage: '', // Set a default value for profileImage
       );
+      await newProfile.saveProfile(); // Save the newly created profile to Hive
+      return newProfile;
     }
   }
 
   /// Saves profile to Hive
   Future<void> saveProfile() async {
     var box = await Hive.openBox<ProfileProvider>('profileBox');
-    box.put('profile', this);
+    await box.put('profile', this); // Save the profile under the 'profile' key
     notifyListeners();
   }
 
   /// Updates profile details
-  void updateProfile({String? newName, String? newBio}) {
+  void updateProfile({String? newName, String? newBio, String? newProfileImage}) {
     if (newName != null) name = newName;
     if (newBio != null) bio = newBio;
+    if (newProfileImage != null) profileImage = newProfileImage;
     saveProfile();
   }
 
