@@ -5,9 +5,12 @@ import 'package:rizzlr/home.dart';
 import 'package:rizzlr/pages/signUp.dart';
 import 'package:rizzlr/components/neumorphicboxthin.dart';
 import 'package:rizzlr/components/gradientBox.dart';
+import '../theme/themeprov.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  final VoidCallback? onFirstVisit;
+
+  const LoginScreen({Key? key, this.onFirstVisit}) : super(key: key);
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -20,6 +23,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    bool isDark = Provider.of<Themeprov>(context, listen: false).isDark;
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       body: Center(
@@ -83,7 +87,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           child: Text(
                             "Login",
                             style: TextStyle(
-                              color: Colors.white,
+                              color: isDark ? Colors.white : Colors.black,
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
                             ),

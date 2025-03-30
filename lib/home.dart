@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:rizzlr/pages/bounty.dart';
 import 'package:rizzlr/pages/homePage.dart';
 import 'package:rizzlr/pages/profile.dart';
 import 'package:rizzlr/pages/settings.dart';
@@ -16,7 +15,6 @@ class _HomeState extends State<Home> {
   final List<Widget> _pages = [
     HomePage(),
     ProfilePage(),
-    Bounty(),
     Settings(),
   ];
 
