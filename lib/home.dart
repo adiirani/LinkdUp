@@ -16,7 +16,6 @@ class _HomeState extends State<Home> {
   final List<Widget> _pages = [
     HomePage(),
     ProfilePage(),
-    Bounty(),
     Settings(),
   ];
 
