@@ -1,4 +1,4 @@
-# rizzlr
+# LinkedUp
 
 A new Flutter project.
 
