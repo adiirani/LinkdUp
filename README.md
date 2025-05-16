@@ -1,16 +1,70 @@
-# LinkedUp
+# LinkdUp
 
-A new Flutter project.
+**LinkdUp** is a next-generation social media app designed to bring people closer together by leveraging proximity-based friend discovery. Using Bluetooth for detecting nearby users and NFC for seamless exchange of profile information, LinkdUp makes connecting with new people effortless and fun.
 
-## Getting Started
+---
 
-This project is a starting point for a Flutter application.
+## Features
 
-A few resources to get you started if this is your first Flutter project:
+- **Proximity Friend Finding via Bluetooth**  
+  Detect and discover other LinkdUp users nearby in real time without needing an internet connection.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+- **Instant Profile Exchange with NFC**  
+  Share your profile instantly by tapping your device with another user's NFC-enabled phone.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- **Secure & Private**  
+  All data exchanges happen directly device-to-device, minimizing data sharing with servers.
+
+- **Customizable Profiles**  
+  Showcase your interests, photos, and social links in a clean, user-friendly interface.
+
+- **Friend Suggestions**  
+  Get smart suggestions based on your proximity encounters and shared interests.
+
+---
+
+## Download
+
+You can download the latest **APK** from the [Releases](https://github.com/adiirani/linkdup/releases) page.
+
+1. Go to the [Releases](https://github.com/adiirani/linkdup/releases).  
+2. Download the latest `LinkdUp.apk`.  
+3. Install the APK on your Android device (ensure you allow installs from unknown sources).
+
+*Currently, the app is available for Android only via APK.*
+
+---
+
+## How It Works
+
+1. **Bluetooth Scanning:** LinkdUp continuously scans for nearby users running the app.  
+2. **Discovery:** When two users come into Bluetooth range, their profiles are detected.  
+3. **NFC Profile Sharing:** Users can tap phones to instantly exchange detailed profile info.  
+4. **Connect & Chat:** Once connected, users can start conversations, add friends, or follow each other.
+
+---
+
+## Tech Stack
+
+- **Mobile:** Flutter (cross-platform for iOS & Android)  
+- **Bluetooth:** Flutter Blue plugin for scanning and detecting nearby devices  
+- **NFC:** Flutter NFC plugin for profile info exchange  
+- **Backend:** Firebase (optional, for user authentication and messaging)  
+- **Database:** Firestore (cloud user data and friend lists)  
+
+---
+
+## License
+
+[Apache 2.0 License](LICENSE)
+
+---
+
+## Contact
+
+Created by:
+[Adi Irani](https://github.com/adiirani)
+[Victoria Fan](https://github.com/vickydee)
+[Alexander Gmyrek](https://github.com/Alexander-Gmyrek)
+
+for DevLabs 2025.
