@@ -54,6 +54,11 @@ You can download the latest **APK** from the [Releases](https://github.com/adiir
 
 ---
 
+## DISCLAIMER
+
+**WARNING:** This application was built in less than 24h for the 2025 DevLabs hackathon. In its current state, expect it to be extremely buggy. Kinks will be ironed out soon; feel free to contribute/open up a pull request.
+
+---
 ## License
 
 [Apache 2.0 License](LICENSE)
